@@ -1,0 +1,19 @@
+version: '3'
+services:
+  tc:
+    image: ${IMG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ${TC_BIND_ROOT}/data:/opt/jetbrains/TeamCity/data
+      - ${TC_BIND_ROOT}/logs:/opt/jetbrains/TeamCity/logs
+    env_file:
+      - env
+    ports:
+      - "2222:22"
+      - "8080:80"
+      - "443:443"
+      - "8111:8111"

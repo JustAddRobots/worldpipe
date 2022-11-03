@@ -1,0 +1,6 @@
+---
+- hosts: builder
+  become: true
+  roles:
+    - useradd
+    - teamcity

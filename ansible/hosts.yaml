@@ -1,0 +1,7 @@
+---
+controller:
+    hosts:
+        builder:
+            ansible_host: localhost
+    vars:
+      sudo_user: rcon

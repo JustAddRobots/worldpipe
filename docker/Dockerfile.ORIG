@@ -1,0 +1,40 @@
+FROM rockylinux:8.6
+
+WORKDIR /
+ENV TZ=America/Los_Angeles
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.16.1.1-1.el8_6.x86_64
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+	&& dnf -y install \
+	epel-release \
+	&& dnf -y install \
+	ansible \
+	java-11-openjdk \
+	nginx \
+	openssh-clients \
+	openssh-server \
+	sudo \
+	tree \
+	vim \
+	wget \
+    && dnf clean all && rm -rf /var/cache/dnf \
+    && ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/id_rsa && ssh-keygen -A \
+	&& mkdir -p /opt/jetbrains \
+	&& wget -O /tmp/TeamCity-2022.04.4.tar.gz https://download.jetbrains.com/teamcity/TeamCity-2022.04.4.tar.gz \
+	&& tar -C /opt/jetbrains -xzf /tmp/TeamCity-2022.04.4.tar.gz \
+	&& rm -rf /tmp/TeamCity-2022.04.4.tar.gz \
+	&& mkdir /opt/jetbrains/TeamCity/data \
+		
+COPY ./tls/privatekey.txt /etc/pki/tls/private/
+COPY ./tls/certificate.txt /etc/pki/tls/certs/
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/setenv.sh /etc/profile.d/
+COPY ./conf/teamcity.service /etc/systemd/system
+COPY ./conf/teamcity-buildagent.service /etc/systemd/system
+
+RUN echo "JAVA_HOME: $JAVA_HOME" \
+	&& systemctl enable teamcity.service \
+	&& systemctl start teamcity.service \
+	&& systemctl enable teamcity-buildagent.service \
+	&& systemctl start teamcity-buildagent.service \

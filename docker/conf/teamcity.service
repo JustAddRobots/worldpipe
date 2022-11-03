@@ -1,0 +1,11 @@
+[Unit]
+Description=TeamCity service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/jetbrains/TeamCity/bin/teamcity-server.sh start
+ExecStop=/opt/jetbrains/TeamCity/bin/teamcity-server.sh stop
+
+[Install]
+WantedBy=multi-user.target
