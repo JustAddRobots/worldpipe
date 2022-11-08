@@ -22,12 +22,10 @@ all: reup
 build:
 	@IMG=${IMGLONG} docker-compose build --no-cache
 	@docker tag ${IMGLONG} ${IMGSHORT}
-	@ansible-playbook -i ansible/hosts.yaml -K ansible/builder.yaml
 
 reup:
 	@COMPOSE_PROJECT_NAME=${NAME} IMG=${IMGLONG} docker-compose up --build --detach
 	@docker tag ${IMGLONG} ${IMGSHORT}
-	@ansible-playbook -i ansible/hosts.yaml -K ansible/builder.yaml
 
 up:
 	@COMPOSE_PROJECT_NAME=${NAME} IMG=${IMGLONG} docker-compose up --detach

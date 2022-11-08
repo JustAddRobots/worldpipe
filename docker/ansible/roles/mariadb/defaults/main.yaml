@@ -1,0 +1,10 @@
+---
+# To create MariaDB hashed password:
+# python3 -c 'from hashlib import sha1; print(f"*{sha1(sha1("PASSWORD".encode("utf-8")).digest()).hexdigest().upper()}")'
+
+mysql_root_password: "*F1B4E8ADC301334F63DACC8F58E0F5D4FCE0CDB6"
+mysql_admin_user: "rcon"
+mysql_admin_user_password: "*C6FD383CEA4A8CBFD86351366D25C5039612E11A"
+mysql_teamcity_user: "teamcity"
+mysql_teamcity_user_password: "*C3E4ABFF87EE42FE9B993C0480543FD7BC25CA0A"
+mysql_root_config_file: "/root/.my.cnf"

@@ -1,0 +1,126 @@
+---
+# - name: Add mariadb repo
+#   yum_repository:
+#     baseurl: https://mirror.mariadb.org/mariadb-10.9.3/yum/rhel8-amd64/
+#     description: MariaDB repo
+#     file: mariadb
+#     gpgcheck: yes
+#     gpgkey: https://mirror.mariadb.org/yum/RPM-GPG-KEY-MariaDB
+#     name: mariadb
+
+# - name: Install mariadb
+#   dnf:
+#       name:
+#         - mariadb-server
+#       state: present
+
+- name: Start mariadb
+  systemd:
+    enabled: true
+    name: mariadb
+    state: started
+
+- name: Set mariadb root password
+  mysql_user:
+    login_unix_socket: "/var/lib/mysql/mysql.sock"
+    name: root
+    password: "{{ mysql_root_password }}"
+    state: present
+
+- name: Template /root/.my.cnf for root password
+  template:
+      backup: true
+      dest: /root/.my.cnf
+      owner: root
+      mode: 0600
+      src: templates/my.cnf.j2
+
+- name: Create mariadb admin user
+  mysql_user:
+    encrypted: false
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ mysql_admin_user }}"
+    password: "{{ mysql_admin_user_password }}"
+    priv: "*.*:ALL"
+    state: present
+
+- name: Remove anonymous user for localhost
+  mysql_user:
+    encrypted: false
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    user: ""
+    state: absent
+
+- name: Remove anonymous user for FQDN
+  mysql_user:
+    encrypted: false
+    host: "{{ inventory_hostname }}.local"
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    state: absent
+    user: ""
+
+- name: Secure root login for IPv4 localhost
+  mysql_user:
+    encrypted: false
+    host: "127.0.0.1"
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    password: "{{ mysql_root_password }}"
+    user: root
+
+- name: Secure root login for IPv6 localhost
+  mysql_user:
+    encrypted: false
+    host: "::1"
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    password: "{{ mysql_root_password }}"
+    user: root
+
+- name: Secure root login for localhost
+  mysql_user:
+    encrypted: false
+    host: localhost
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    password: "{{ mysql_root_password }}"
+    user: root
+
+- name: Secure root login for FQDN
+  mysql_user:
+    encrypted: false
+    host: "{{ inventory_hostname }}.local"
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    password: "{{ mysql_root_password }}"
+    user: root
+
+- name: Remove test database
+  mysql_db:
+    name: test
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    state: absent
+
+- name: Create teamcity database
+  mysql_db:
+    name: teamcity
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_user_password }}"
+    state: present
+    encoding: "utf8"
+    collation: "utf8mb4_bin"
+
+- name: Create mariadb teamcity user
+  mysql_user:
+    encrypted: false
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ mysql_teamcity_user }}"
+    password: "{{ mysql_teamcity_user_password }}"
+    priv: "teamcity.*:ALL"
+    state: present
+

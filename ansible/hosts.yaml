@@ -2,6 +2,6 @@
 controller:
     hosts:
         builder:
-            ansible_host: localhost
+            ansible_host: straylight.local
     vars:
       sudo_user: rcon
