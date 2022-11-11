@@ -9,6 +9,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && dnf -y install \
     epel-release \
     && dnf -y install \
+    git \
     java-11-openjdk \
     mariadb-server \
     nginx \
@@ -28,10 +29,11 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && mkdir /home/rcon/.ssh \
     && ssh-keygen -t rsa -b 4096 -N '' -f /home/rcon/.ssh/id_rsa \
     && rm -f /var/run/nologin \
+    && alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.el8_6.x86_64/bin/java \
     && mkdir -p /opt/jetbrains \
-    && wget -O /tmp/TeamCity-2022.04.4.tar.gz https://download.jetbrains.com/teamcity/TeamCity-2022.04.4.tar.gz \
-    && tar -C /opt/jetbrains -xzf /tmp/TeamCity-2022.04.4.tar.gz \
-    && rm -rf /tmp/TeamCity-2022.04.4.tar.gz \
+    && wget -O /tmp/TeamCity-2022.10.tar.gz https://download.jetbrains.com/teamcity/TeamCity-2022.10.tar.gz?_ga=2.165993654.927164842.1668064674-1217142857.1668064674 \
+    && tar -C /opt/jetbrains -xzf /tmp/TeamCity-2022.10.tar.gz \
+    && rm -rf /tmp/TeamCity-2022.10.tar.gz \
     && useradd teamcity && echo password | passwd teamcity --stdin \
     && chown -R teamcity:teamcity /opt/jetbrains/TeamCity \
     && mkdir /opt/jetbrains/TeamCity/data \
@@ -49,7 +51,7 @@ COPY ./conf/setenv.sh /etc/profile.d/
 COPY ./conf/server.xml /opt/jetbrains/TeamCity/conf/
 COPY ./conf/configure_mariadb.sh /opt/jetbrains/TeamCity/bin/
 
-RUN echo "JAVA_HOME: $JAVA_HOME" \
+RUN echo "JRE_HOME: $JRE_HOME" \
     && chmod 600 /root/.ssh/authorized_keys \
     && chmod 600 /home/rcon/.ssh/authorized_keys \
     && chown -R rcon:rcon /home/rcon/.ssh 
@@ -63,8 +65,6 @@ RUN test -d /var/run/mariadb || mkdir /var/run/mariadb; \
     && mysqladmin shutdown --password='Ch4n63M3' \
     && wget -P /tmp https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31-1.el8.noarch.rpm \
     && dnf -y -q install /tmp/mysql-connector-j-8.0.31-1.el8.noarch.rpm \
-    && mkdir -p /opt/jetbrains/TeamCity/data/lib/jdbc \
-    && cp /usr/share/java/mysql-connector-j.jar /opt/jetbrains/TeamCity/data/lib/jdbc/
+    && cp /usr/share/java/mysql-connector-j.jar /opt/jetbrains/TeamCity/
 
 CMD /usr/sbin/sshd ; /usr/sbin/nginx ; test -d /var/run/mariadb || mkdir /var/run/mariadb ; chmod 0777 /var/run/mariadb ; /usr/bin/mysqld_safe --basedir=/usr
-
