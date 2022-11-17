@@ -62,9 +62,10 @@ RUN test -d /var/run/mariadb || mkdir /var/run/mariadb; \
     /usr/bin/mysqld_safe --basedir=/usr & \
     sleep 10s \
     && /usr/bin/mysqladmin -u root password 'Ch4n63M3' \
+	&& /opt/jetbrains/TeamCity/bin/configure_mariadb.sh \
     && mysqladmin shutdown --password='Ch4n63M3' \
     && wget -P /tmp https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31-1.el8.noarch.rpm \
     && dnf -y -q install /tmp/mysql-connector-j-8.0.31-1.el8.noarch.rpm \
     && cp /usr/share/java/mysql-connector-j.jar /opt/jetbrains/TeamCity/
 
-CMD /usr/sbin/sshd ; /usr/sbin/nginx ; test -d /var/run/mariadb || mkdir /var/run/mariadb ; chmod 0777 /var/run/mariadb ; /usr/bin/mysqld_safe --basedir=/usr
+CMD /usr/sbin/sshd ; /usr/sbin/nginx ; test -d /var/run/mariadb || mkdir /var/run/mariadb ; chmod 0777 /var/run/mariadb ; /usr/bin/mysqld_safe --basedir=/usr ; /opt/jetbrains/TeamCity/bin/runAll.sh start ; /usr/bin/bash

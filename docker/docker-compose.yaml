@@ -12,23 +12,9 @@ services:
       - ${TC_BIND_ROOT}/logs:/opt/jetbrains/TeamCity/logs
     env_file:
       - env
-#     mac_address: 02:ad:c8:3b:19:e7
-#     networks:
-#       - dockervlan
     ports:
       - "2222:22"
       - "8080:80"
       - "443:443"
       - "8111:8111"
-# networks:
-#   dockervlan:
-#     name: dockervlan
-#     driver: macvlan
-#     driver_opts:
-#       parent: en0
-#     ipam:
-#       driver: default
-#       config:
-#         - subnet: "11.22.33.0/25"
-#           gateway: "11.22.33.1"
-          
+    stop_grace_period: 30s
